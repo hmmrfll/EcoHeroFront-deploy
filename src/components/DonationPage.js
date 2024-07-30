@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { } from 'react';
 import styled from 'styled-components';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { THEME, TonConnectUIProvider, useTonConnectUI, useTonWallet, useTonConnectModal, TonConnectButton } from '@tonconnect/ui-react';
+import { THEME, TonConnectUIProvider, useTonConnectUI, useTonWallet, useTonConnectModal} from '@tonconnect/ui-react';
 
 const ModalOverlay = styled.div`
   position: fixed;
