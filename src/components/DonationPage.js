@@ -139,7 +139,7 @@ const DonationPage = ({ language }) => {
 
   return (
     <TonConnectUIProvider
-      manifestUrl="https://github.com/daanicccch/tonconnect-manifest.json/blob/main/tonconnect-manifest.json"
+      manifestUrl="https://raw.githubusercontent.com/daanicccch/tonconnect-manifest.json/0b296931f4ab3d2fe8500ccea215f5edbf4302b2/tonconnect-manifest.json"
       uiPreferences={{ theme: THEME.DARK }}
       walletsListConfiguration={{
         includeWallets: [
