@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import BackButton from './BackButton';
 import FriendsModal from './FriendsModal';
+import WalletModal from './WalletModal'; // Импорт нового компонента модального окна
 import { getUserByChatId } from '../services/userService';
-import { THEME, TonConnectUIProvider, useTonConnectUI, useTonWallet, useTonConnectModal, TonConnectButton } from '@tonconnect/ui-react';
+import { THEME, TonConnectUIProvider, useTonConnectUI, useTonAddress, useTonConnectModal } from '@tonconnect/ui-react';
 
 const MainScreenContainer = styled.div`
   display: flex;
@@ -21,36 +22,33 @@ const MainScreenContainer = styled.div`
 
 const Header = styled.div`
   display: flex;
-  
-  
   width: 90%;
-  
 `;
 
 const Logo = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 `;
 
 const LogoImage = styled.img`
-  width: 100px;
-  height: 100px;
+  width: 20vh;
+  height: 20vh;
   border-radius: 50%;
-  margin-bottom: 1rem;
 `;
 
 const Title = styled.h1`
   font-size: 2rem;
-  margin: 0;
+  margin-bottom: 0;
+  margin-top: 0;
   font-family: Inter;
 `;
 
 const ButtonContainer = styled.div`
   position: relative;
   width: 90%;
-  margin: 0.5rem 0;
+  margin: 0.4rem 0;
   border-radius: 10px;
 `;
 
@@ -69,25 +67,12 @@ const Button = styled.button`
   position: relative;
   z-index: 1;
   white-space: normal; /* Allows text to wrap */
+  margin-bottom: 0; /* Ensure consistent margin */
 `;
 
-const ButtonTonText = styled.button`
-  width: 100%;
-  padding: 1rem;
+const ButtonTonText = styled(Button)`
   background-color: #EF8332;
   color: black;
-  border: none;
-  border-radius: 15px;
-  font-size: 1rem;
-  font-family: "Inter";
-  font-weight: Regular;
-  cursor: pointer;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-  font-family: 'Inter', sans-serif;
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  white-space: normal; /* Allows text to wrap */
 `;
 
 const ButtonStrip = styled.div`
@@ -101,18 +86,29 @@ const ButtonStrip = styled.div`
   z-index: 0;
 `;
 
-const StyledTonConnectButton = styled(TonConnectButton)`
-  position: absolute;
-  top:2vh;
-  right: 8vh;
+const ButtonTonStrip = styled.div`
+width: 100%;
+height: 3vh;
+background-color: #EF8332;
+border-radius: 0 0 15px 15px;
+position: absolute;
+bottom: -0.7vh;
+left: 0;
+z-index: 1;
+`
+const ConnectWalletButton = styled(Button)`
+  background-color: ${props => (props.connected ? 'rgba(111, 46, 24, 0.41)' : 'rgba(239, 131, 50, 0.56)')};
+  color: ${props => (props.connected ? '#EF8332' : 'black')};
+  border: 1px solid ${props => (props.connected ? 'rgba(111, 46, 24, 1)' : 'rgba(239, 131, 50, 1)')};
 `;
 
 const MainScreen = ({ chatId, language }) => {
   const navigate = useNavigate();
   const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [referralCode, setReferralCode] = useState('');
   const [tonConnectUI] = useTonConnectUI();
-  const wallet = useTonWallet();
+  const wallet = useTonAddress();
   const { open } = useTonConnectModal();
 
   useEffect(() => {
@@ -134,6 +130,10 @@ const MainScreen = ({ chatId, language }) => {
 
   const handleAboutGameClick = () => {
     navigate('/about-game');
+  };
+
+  const handleTasksClick = () => {
+    navigate('/tasks');
   };
 
   const handleSendTransaction = () => {
@@ -164,6 +164,25 @@ const MainScreen = ({ chatId, language }) => {
     } else {
       handleSendTransaction();
     }
+  };
+
+  const handleConnectWallet = () => {
+    if (wallet) {
+      setIsWalletModalOpen(true);
+    } else {
+      open();
+    }
+  };
+
+  const handleDisconnectWallet = () => {
+    tonConnectUI.disconnect();
+    setIsWalletModalOpen(false);
+  };
+
+  const shortenAddress = (address) => {
+    if (!address) return '';
+    const formattedAddress = address.includes(':') ? address.split(':')[1] : address;
+    return `${formattedAddress.slice(0, 4)}...${formattedAddress.slice(-4)}`;
   };
 
   return (
@@ -393,12 +412,17 @@ const MainScreen = ({ chatId, language }) => {
       <MainScreenContainer>
         <Header>
           <BackButton />
-          <StyledTonConnectButton onClick={open} />
         </Header>
         <Logo>
           <LogoImage src="/menu-page/logo.png" alt="EcoHero Logo" />
           <Title>EcoHero</Title>
         </Logo>
+        <ButtonContainer>
+          <Button onClick={handleTasksClick}>
+            {language === 'ru' ? 'Задания' : 'Tasks'}
+          </Button>
+          <ButtonStrip />
+        </ButtonContainer>
         <ButtonContainer>
           <Button onClick={handleLeaderboardClick}>
             {language === 'ru' ? 'Таблица лидеров' : 'Leaderboard'}
@@ -421,6 +445,18 @@ const MainScreen = ({ chatId, language }) => {
           <ButtonTonText onClick={handleDonate}>
             {language === 'ru' ? 'Донат 1 TON' : 'Donate 1 TON'}
           </ButtonTonText>
+          <ButtonTonStrip />
+        </ButtonContainer>
+        <ButtonContainer>
+          {wallet ? (
+            <ConnectWalletButton connected onClick={handleConnectWallet}>
+              {shortenAddress(wallet)}
+            </ConnectWalletButton>
+          ) : (
+            <ConnectWalletButton onClick={handleConnectWallet}>
+              {language === 'ru' ? 'Привязать кошелек' : 'Connect Wallet'}
+            </ConnectWalletButton>
+          )}
         </ButtonContainer>
         <FriendsModal
           isOpen={isFriendsModalOpen}
@@ -429,6 +465,15 @@ const MainScreen = ({ chatId, language }) => {
           referralCode={referralCode}
           language={language}
         />
+        {isWalletModalOpen && (
+          wallet && (
+          <WalletModal
+            wallet={wallet}
+            onClose={() => setIsWalletModalOpen(false)}
+            onDisconnect={handleDisconnectWallet}
+          />
+          )
+        )}
       </MainScreenContainer>
     </TonConnectUIProvider>
   );
