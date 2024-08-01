@@ -10,6 +10,7 @@
     "@tonconnect/ui": "^2.0.6",
     "@tonconnect/ui-react": "^2.0.6",
     "axios": "^1.7.2",
+    "firebase": "^10.12.5",
     "path-browserify": "^1.0.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
