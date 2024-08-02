@@ -1,4 +1,4 @@
-const serverUrl = 'https://localhost:3001'
+const serverUrl = 'http://localhost'
 
 const getUserByChatId = async chatId => {
 	const response = await fetch(`${serverUrl}/api/users/${chatId}`, {
