@@ -1,4 +1,4 @@
-const serverUrl = 'http://54.37.80.99'
+const serverUrl = 'https://54.37.80.99'
 
 const getUserByChatId = async chatId => {
 	const response = await fetch(`${serverUrl}/api/users/${chatId}`, {
